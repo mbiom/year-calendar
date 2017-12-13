@@ -19,3 +19,40 @@
 #tblCalendar td {
 	text-align: center;
 }
+#tblWorkweek td {
+	width: 30px;
+}
+button.ui-datepicker-trigger {
+	border: none;
+	text-decoration: underline;
+}
+#dpHolidays, #dpExceptions {
+	width: 15px;
+	visibility: hidden;
+}
+#btnReset, #btnSubmit {
+	margin-left: 20px;
+}
+#printContent {
+	padding: 20px;
+}
+#printButtons {
+	position: absolute;
+    top: 30px;
+    right: 20px;
+}
+#iconWorking {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: solid 1px black;
+	margin: 20px 12px -5px 20px;
+}
+#iconNonWorking {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	background-color: #BBB;
+	border: solid 1px black;
+	margin: 20px 12px -5px 20px;
+}

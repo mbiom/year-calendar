@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <title>Working day calendar</title>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+  <script src='./scripts/script.js' type="text/javascript" charset="utf-8"></script>
+  
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel='stylesheet' type='text/css' href='./styles/style.css'>
+</head>
+<body>
+
+  <div class="container">
+    <div class="row">
+      <h3 class="text-center">Working Day Calendar Generator</h3>
+      <br>
+      <hr>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="project-form">
+          <p>
+            <label>Project Name: </label>
+            <input type="text" id="txtProjName">
+          </p>
+          <p>
+            <label>Project Duration: </label>
+            <input type="text" id="txtProjDur" size=5> Working Days
+          </p>
+          <p>
+            <label>Start Date: </label>
+            <input type="text" id="dpStartDate" size=5> Working Days
+          </p>
+          <p>
+            <label>Workweek: </label>
+            <table id="tblWorkweek"></table>
+          </p>
+          <p>
+            <label>Exception: </label>
+            <table>
+              <tr>
+                <td width="50px">Yes</td><td width="50px">No</td><td></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" id="chkHoliYes"></td>
+                <td><input type="checkbox" id="chkHoliNo"></td>
+                <td>Include Holidays? <div id="btnHoliCus">Customize</div></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" id="chkExcpYes"></td>
+                <td><input type="checkbox" id="chkExcpNo"></td>
+                <td>Other Exceptions? <div id="btnExcpCus">Customize</div></td>
+              </tr>
+            </table>
+          </p>
+          <p>
+            <button>RESET</button>
+            <button>SUBMIT</button>
+          </p>
+        </div>
+        
+      </div>
+      <div class="col-sm-6">
+        <div id="divCal"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

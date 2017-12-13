@@ -13,3 +13,9 @@
 	cursor: pointer;
 	margin-left: 15px;
 }
+.nonworking {
+	background-color: #BBB;
+}
+#tblCalendar td {
+	text-align: center;
+}

@@ -161,25 +161,34 @@ function fill_table(year, m_name,m_length,mm) {
   }
   if (num_rows < 6)
     strCalHtml += "<TD>&nbsp;</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD></TD><TD></TD>";
+  if (num_rows < 5)
+    strCalHtml += "<TR><TD>&nbsp;</TD><TD></TD><TD></TD><TD></TD><TD></TD><TD></TD><TD></TD>";
   strCalHtml +="</TR></TABLE>";
   start_day = i;
 }
 
-function getYearCalHtml(year, ele) {
-  begin_date = new Date(year, 0, 1);
-  start_day = begin_date.getDay()+1;
-  if (start_day == 1){
-    start_day = 8;
-  }
+function getYearCalHtml(years, ele) {
+  console.log(years);
+  strCalHtml = "";
+  for (var i = 0; i < years.length; i++) {
+    var year = years[i];
+    strCalHtml += "<p class=h4>" + year + "</p>";
+    begin_date = new Date(year, 0, 1);
+    start_day = begin_date.getDay()+1;
+    if (start_day == 1){
+      start_day = 8;
+    }
 
-  strCalHtml = "<TABLE><TR>";
-  for (var m = 0; m < 12; m++){
-    if (m % 3 == 0)
-      strCalHtml += "</TR><TR>";
-    strCalHtml += "<TD>";
-    fill_table(year, month[m], month_length[m], m);
-    strCalHtml += "</TD>";
+    strCalHtml += "<TABLE><TR>";
+    for (var m = 0; m < 12; m++){
+      if (m % 3 == 0)
+        strCalHtml += "</TR><TR>";
+      strCalHtml += "<TD>";
+      fill_table(year, month[m], month_length[m], m);
+      strCalHtml += "</TD>";
+    }
+    strCalHtml += "</TABLE>";
   }
-  strCalHtml += "</TABLE>";
+  
   ele.html(strCalHtml);
 }

@@ -1,5 +1,5 @@
 var firstSelectedDate;
-var lastSelectedYear = new Date().getFullYear();
+var selectedYears = [ new Date().getFullYear() ];
 
 function fillWorkweekSetting() {
   var strTableHtml  = "<TR>";
@@ -17,7 +17,7 @@ function fillWorkweekSetting() {
   $('.check-workweek').change(function() {
     var weekday = parseInt($(this).attr('weekday')) || 0;
     work_weekdays[weekday] = $(this).is(':checked') ? 1 : 0;
-    getYearCalHtml(lastSelectedYear, $('#divCal'));
+    getYearCalHtml(selectedYears, $('#divCal'));
   });
 }
 
@@ -44,7 +44,7 @@ function toggleExceptions() {
       break;
   }
 
-  getYearCalHtml(lastSelectedYear, $('#divCal'));
+  getYearCalHtml(selectedYears, $('#divCal'));
 }
 
 function openExceptionPickers() {
@@ -52,7 +52,7 @@ function openExceptionPickers() {
   holiPicker.multiDatesPicker({
     onSelect: function(dateText) {
       custom_holidays = $('#dpHolidays').val().split(', ');
-      getYearCalHtml(lastSelectedYear, $('#divCal'));
+      getYearCalHtml(selectedYears, $('#divCal'));
     }
   });
 
@@ -60,7 +60,7 @@ function openExceptionPickers() {
   excpPicker.multiDatesPicker({
     onSelect: function(dateText) {
       custom_exceptions = $('#dpExceptions').val().split(', ');
-      getYearCalHtml(lastSelectedYear, $('#divCal'));
+      getYearCalHtml(selectedYears, $('#divCal'));
     }
   });
 }
@@ -85,15 +85,30 @@ function resetCalendar() {
   $('#chkExcpYes').prop('checked', false);
   $('#chkExcpNo').prop('checked', true);
 
-  lastSelectedYear = new Date().getFullYear();
-  getYearCalHtml(lastSelectedYear, $('#divCal'));
+  selectedYears = [ new Date().getFullYear() ];
+  getYearCalHtml(selectedYears, $('#divCal'));
 }
 
 function submitCalendar () {
   $('#printProjName').html($('#txtProjName').val());
   $('#printProjID').html($('#txtProjID').val());
-  $('#printCalTitle').html(lastSelectedYear + ' Working Day Calendar');
+  $('#printCalTitle').html(selectedYears + ' Working Day Calendar');
   $('#printCalTable').html($('#divCal').html());
+}
+
+Date.prototype.addDays = function(days) {
+  var dat = new Date(this.valueOf());
+  dat.setDate(dat.getDate() + days);
+  return dat;
+}
+
+function getYearsList() {
+  selectedYears = [];
+  var startDate = $('#dpStartDate').datepicker("getDate");
+  var projDuration = parseInt($('#txtProjDur').val());
+  var endDate = startDate.addDays(projDuration);
+  for (var i = startDate.getFullYear(); i <= endDate.getFullYear(); i++)
+    selectedYears.push(i);
 }
 
 $(document).ready(function(){
@@ -104,12 +119,22 @@ $(document).ready(function(){
     .on('change', function(e) {
       var strDate = $(this).val();
       var year = parseInt(strDate.substr(strDate.length - 4)) || 2017;
-      if (lastSelectedYear != year)
-        getYearCalHtml(year, $('#divCal'));
-      lastSelectedYear = year;
+      getYearsList();
+      getYearCalHtml(selectedYears, $('#divCal'));
     });
   firstSelectedDate = $('#dpStartDate').val();
-  getYearCalHtml(lastSelectedYear, $('#divCal'));
+
+  $('#txtProjDur').on('keyup', function(){
+    var duration = parseInt($('#txtProjDur').val());
+    if (duration < 1 || duration > 1000 || !duration) {
+      $('.num-alert').show();
+      return;
+    }
+    else {
+      getYearsList();
+      getYearCalHtml(selectedYears, $('#divCal'));
+    }
+  });
 
   $('#chkHoliNo').prop('checked', true);
   $('#chkExcpNo').prop('checked', true);
@@ -122,4 +147,7 @@ $(document).ready(function(){
 
   $('#btnReset').click(resetCalendar);
   $('#btnSubmit').click(submitCalendar);
+
+
+  getYearCalHtml(selectedYears, $('#divCal'));
 });

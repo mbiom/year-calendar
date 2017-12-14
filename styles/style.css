@@ -76,3 +76,8 @@ button.ui-datepicker-trigger {
 	font-weight: bold;
 	text-align: center;
 }
+.num-alert {
+	color: red;
+	margin-top: -15px;
+	display: none;
+}

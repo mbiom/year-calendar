@@ -73,17 +73,17 @@ function resetCalendar() {
   work_weekdays = [1,1,1,1,1,0,0];
   fillWorkweekSetting();
 
-  include_holidays = true;
+  include_holidays = false;
   custom_holidays = [];
   $('#dpHolidays').val('');
-  include_exceptions = true;
+  include_exceptions = false;
   custom_exceptions = [];
   $('#dpExceptions').val('');
 
-  $('#chkHoliYes').prop('checked', true);
-  $('#chkHoliNo').prop('checked', false);
-  $('#chkExcpYes').prop('checked', true);
-  $('#chkExcpNo').prop('checked', false);
+  $('#chkHoliYes').prop('checked', false);
+  $('#chkHoliNo').prop('checked', true);
+  $('#chkExcpYes').prop('checked', false);
+  $('#chkExcpNo').prop('checked', true);
 
   lastSelectedYear = new Date().getFullYear();
   getYearCalHtml(lastSelectedYear, $('#divCal'));
@@ -91,6 +91,7 @@ function resetCalendar() {
 
 function submitCalendar () {
   $('#printProjName').html($('#txtProjName').val());
+  $('#printProjID').html($('#txtProjID').val());
   $('#printCalTitle').html(lastSelectedYear + ' Working Day Calendar');
   $('#printCalTable').html($('#divCal').html());
 }
@@ -110,8 +111,8 @@ $(document).ready(function(){
   firstSelectedDate = $('#dpStartDate').val();
   getYearCalHtml(lastSelectedYear, $('#divCal'));
 
-  $('#chkHoliYes').prop('checked', true);
-  $('#chkExcpYes').prop('checked', true);
+  $('#chkHoliNo').prop('checked', true);
+  $('#chkExcpNo').prop('checked', true);
   $('#chkHoliYes').click(toggleExceptions);
   $('#chkHoliNo').click(toggleExceptions);
   $('#chkExcpYes').click(toggleExceptions);

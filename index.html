@@ -27,18 +27,31 @@
     <div class="row">
       <div class="col-sm-6">
         <div class="project-form">
-          <p>
-            <label>Project Name: </label>
-            <input type="text" id="txtProjName" size="25">
-          </p>
-          <p>
-            <label>Project Duration: </label>
-            <input type="text" id="txtProjDur" size=5> Working Days
-          </p>
-          <p>
-            <label>Start Date: </label>
-            <input type="text" id="dpStartDate" size=20> Working Days
-          </p>
+          
+          <div class="row">
+            <div class="col-sm-3"><label>Project Name: </label></div>
+            <div class="col-sm-9"><input type="text" id="txtProjName" size="25" value="Working Day Calendar Generator Working Day Calendar Generator Working Day Calendar Generator"></div>
+          </div>
+          <br>
+        
+          <div class="row">
+            <div class="col-sm-3"><label>Project ID: </label></div>
+            <div class="col-sm-9"><input type="text" id="txtProjID" size="20"></div>
+          </div>
+          <br>
+        
+          <div class="row">
+            <div class="col-sm-3"><label>Project Duration: </label></div>
+            <div class="col-sm-9"><input type="text" id="txtProjDur" size=5> Working Days</div>
+          </div>
+          <br>
+        
+          <div class="row">
+            <div class="col-sm-3"><label>Start Date: </label></div>
+            <div class="col-sm-9"><input type="text" id="dpStartDate" size=20></div>
+          </div>
+          <br>
+
           <p>
             <label>Workweek: </label>
             <table id="tblWorkweek"></table>
@@ -53,7 +66,7 @@
                 <td><input type="checkbox" id="chkHoliYes"></td>
                 <td><input type="checkbox" id="chkHoliNo"></td>
                 <td>
-                  Include Holidays? 
+                  Work Allowed on Holidays 
                   <!-- <div id="btnHoliCus">Customize</div> -->
                   <input type="text" id="dpHolidays">
                 </td>
@@ -62,7 +75,7 @@
                 <td><input type="checkbox" id="chkExcpYes"></td>
                 <td><input type="checkbox" id="chkExcpNo"></td>
                 <td>
-                  Other Exceptions? 
+                  Other Exceptions 
                   <!-- <div id="btnExcpCus">Customize</div> -->
                   <input type="text" id="dpExceptions">
                 </td>
@@ -87,12 +100,14 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div id="printContent">
-          <h3 id="printProjName"></h3>
-          <h4 id="printCalTitle"></h4>
+          <p class="h4" id="printProjName"></p>
+          <p class="h5" id="printProjID"></p>
+          <p class="h5" id="printCalTitle"></p>
           <div id="printCalTable"></div>
           <p>
             <span id='iconWorking'></span> Working Day
             <span id='iconNonWorking'></span> Non-Working Day
+            <span id='iconHoliday'>H</span> Holiday
           </p>
         </div>
         <div id="printButtons">

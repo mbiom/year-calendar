@@ -1,11 +1,11 @@
 var strCalHtml = '';
 var month = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVENBER', 'DECEMBER'];
-var weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-var work_weekdays = [1,1,1,1,1,0,0];
+var weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+var work_weekdays = [0,1,1,1,1,1,0];
 var month_length = [31,28,31,30,31,30,31,31,30,31,30,31];
-var include_holidays = true;
+var include_holidays = false;
 var custom_holidays = [];
-var include_exceptions = true;
+var include_exceptions = false;
 var custom_exceptions = [];
 
 var today = new Date();
@@ -34,6 +34,8 @@ function check_holiday (dt_date) {  // check for market holidays
       return "New Year's";
     case '7/4':
       return "Independence Day";
+    case '11/11':
+      return "Veterans Day";
     case '12/25':
       return "Christmas";
     // case GoodFriday(s_year):
@@ -44,6 +46,8 @@ function check_holiday (dt_date) {  // check for market holidays
     switch(s_date1){
       case '12/31':
         return "New Year's";
+      case '11/11':
+      return "Veterans Day";
       case '7/3':
         return "Independence Day";
       case '12/24':
@@ -73,6 +77,10 @@ function check_holiday (dt_date) {  // check for market holidays
       return "Labor Day";
     case '11/4/4':
       return "Thanksgiving";
+    case '11/4/5':
+      return "Friday after Thanksgiving";
+    case '10/2/1':
+      return "Columbus Day";
     }
   // weekday number from end of the month (month/num/day)
   var dt_temp = new Date (dt_date);
@@ -82,6 +90,8 @@ function check_holiday (dt_date) {  // check for market holidays
   n_wnum = Math.floor((dt_temp.getDate() - n_date - 1) / 7) + 1;
   var s_date3 = n_month + '/' + n_wnum + '/' + n_wday;
   if (   s_date3 == '5/1/1'  // Memorial Day, last Monday in May
+  ) return 'Memorial Day';
+  if (   s_date3 == '3/1/1'  // Cesar Chavez Day, last Monday in March
   ) return 'Memorial Day';
   // misc complex dates
   if (s_date1 == '1/20' && (((dt_date.getFullYear() - 1937) % 4) == 0) 
@@ -105,17 +115,16 @@ function check_exception (dt_date) {
 
 function hilite_nonworking(dayOfWeek, dt_date) {
   if (!work_weekdays[(dayOfWeek-1) % 7])
-    return " class='nonworking'";
-  if (include_holidays && check_holiday(dt_date))
-    return " class='nonworking'";
+    return "nonworking";
+  if (!include_holidays && check_holiday(dt_date))
+    return "holiday";
   if (include_exceptions && check_exception(dt_date))
-    return " class='nonworking'";
+    return "nonworking";
   return "";
 }
 
 function fill_table(year, m_name,m_length,mm) {
-  if (year % 4 == 0)
-    month_length[1] = 29;
+  month_length[1] = (year % 4 == 0 ? 29 : 28);
 
   day=1;
   strCalHtml +="<TABLE BORDER=1 id='tblCalendar'><TR>";
@@ -127,8 +136,9 @@ function fill_table(year, m_name,m_length,mm) {
     strCalHtml +="<TD>";
   }
   for (var i = start_day; i<8; i++) {
-    strCalHtml += "<TD" + hilite_nonworking(i, new Date(year, mm, day)) + ">";
-    strCalHtml += day + "</TD>";
+    var spcDay = hilite_nonworking(i, new Date(year, mm, day));
+    strCalHtml += "<TD class='" + spcDay + "'>";
+    strCalHtml += (spcDay=="holiday" ? "H" : day) + "</TD>";
     day++;
   }
   strCalHtml +="<TR>";
@@ -136,8 +146,9 @@ function fill_table(year, m_name,m_length,mm) {
   while (day <= m_length) {
     var num_in_row = 0;
     for (var i=1;i<=7 && day<=m_length;i++) {
-      strCalHtml += "<TD " + hilite_nonworking(i, new Date(year, mm, day)) + ">";
-      strCalHtml += day + "</TD>";
+      var spcDay = hilite_nonworking(i, new Date(year, mm, day));
+      strCalHtml += "<TD class='" + spcDay + "'>";
+      strCalHtml += (spcDay=="holiday" ? "H" : day) + "</TD>";
       day++;
       num_in_row++;
     }
@@ -156,9 +167,9 @@ function fill_table(year, m_name,m_length,mm) {
 
 function getYearCalHtml(year, ele) {
   begin_date = new Date(year, 0, 1);
-  start_day = begin_date.getDay();
-  if (start_day == 0){
-    start_day = 7;
+  start_day = begin_date.getDay()+1;
+  if (start_day == 1){
+    start_day = 8;
   }
 
   strCalHtml = "<TABLE><TR>";

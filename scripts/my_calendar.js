@@ -7,6 +7,9 @@ var include_holidays = false;
 var custom_holidays = [];
 var include_exceptions = false;
 var custom_exceptions = [];
+var include_morat = false;
+var morat_ranges = [];
+var morat_repeat = [];
 
 var today = new Date();
 var begin_date = new Date(new Date().getFullYear(), 0, 1);
@@ -29,25 +32,27 @@ function check_holiday (dt_date) {  // check for market holidays
     return "Custom Holiday";
   
   var s_date1 = n_month + '/' + n_date;
-  switch(s_date1){
-    case '1/1':
-      return "New Year's";
-    case '7/4':
-      return "Independence Day";
-    case '11/11':
-      return "Veterans Day";
-    case '12/25':
-      return "Christmas";
-    // case GoodFriday(s_year):
-      // return "Good Friday";
+  if (s_day!=6 && s_day!=0) {
+    switch(s_date1){
+      case '1/1':
+        return "New Year's";
+      case '7/4':
+        return "Independence Day";
+      case '11/11':
+        return "Veterans Day";
+      case '12/25':
+        return "Christmas";
+      // case GoodFriday(s_year):
+        // return "Good Friday";
     }
+  }
   // special cases - friday before or monday after weekend holiday
   if (s_day == 5){  // Friday before
     switch(s_date1){
       case '12/31':
         return "New Year's";
-      case '11/11':
-      return "Veterans Day";
+      case '11/10':
+        return "Veterans Day";
       case '7/3':
         return "Independence Day";
       case '12/24':
@@ -58,6 +63,8 @@ function check_holiday (dt_date) {  // check for market holidays
     switch(s_date1){
       case '1/2':
         return "New Year's";
+      case '11/12':
+        return "Veterans Day";
       case '7/5':
         return "Independence Day";
       case '12/26':
@@ -78,7 +85,9 @@ function check_holiday (dt_date) {  // check for market holidays
     case '11/4/4':
       return "Thanksgiving";
     case '11/4/5':
-      return "Friday after Thanksgiving";
+      return n_date==22 ? false : "Friday after Thanksgiving";
+    case '11/5/5':
+      return n_date==29 ? "Friday after Thanksgiving" : false;
     case '10/2/1':
       return "Columbus Day";
     }
@@ -94,12 +103,12 @@ function check_holiday (dt_date) {  // check for market holidays
   if (   s_date3 == '3/1/1'  // Cesar Chavez Day, last Monday in March
   ) return 'Memorial Day';
   // misc complex dates
-  if (s_date1 == '1/20' && (((dt_date.getFullYear() - 1937) % 4) == 0) 
-    // Inauguration Day, January 20th every four years, starting in 1937. 
-  ) return 'Inauguration Day';
-   if (n_month == 11 && n_date >= 2 && n_date < 9 && n_wday == 2
-    // Election Day, Tuesday on or after November 2. 
-   ) return 'Election Day';
+  // if (s_date1 == '1/20' && (((dt_date.getFullYear() - 1937) % 4) == 0) 
+  //   // Inauguration Day, January 20th every four years, starting in 1937. 
+  // ) return 'Inauguration Day';
+  //  if (n_month == 11 && n_date >= 2 && n_date < 9 && n_wday == 2
+  //   // Election Day, Tuesday on or after November 2. 
+  //  ) return 'Election Day';
   return false;
 } 
 
@@ -113,12 +122,40 @@ function check_exception (dt_date) {
     return "Custom Exception";
 }
 
+function check_moratorium (dt_date) {
+  for (var i = 0; i < morat_ranges.length; i++) {
+    var morat_days = morat_ranges[i];
+    if (!morat_days[0] || !morat_days[1])
+      continue;
+    if (morat_days[0].getTime() > morat_days[1].getTime())
+      continue;
+    if (morat_days[0].getYear() != morat_days[1].getYear())
+      continue;
+    if (!morat_repeat[i]) {
+      if (dt_date.getTime() >= morat_days[0].getTime() && dt_date.getTime() <= morat_days[1].getTime())
+        return true;
+    }
+    else {
+      var myYear = dt_date.getFullYear();
+      var moratd1 = morat_days[0], moratd2 = morat_days[1];
+      moratd1.setFullYear(myYear);
+      moratd2.setFullYear(myYear);
+      if (dt_date.getTime() >= moratd1.getTime() && dt_date.getTime() <= moratd2.getTime())
+        return true;
+    }
+  }
+
+  return false;
+}
+
 function hilite_nonworking(dayOfWeek, dt_date) {
-  if (!work_weekdays[(dayOfWeek-1) % 7])
-    return "nonworking";
   if (!include_holidays && check_holiday(dt_date))
     return "holiday";
   if (include_exceptions && check_exception(dt_date))
+    return "nonworking";
+  if (!work_weekdays[(dayOfWeek-1) % 7])
+    return "nonworking";
+  if (include_morat && check_moratorium(dt_date))
     return "nonworking";
   return "";
 }
@@ -172,7 +209,7 @@ function getYearCalHtml(years, ele) {
   strCalHtml = "";
   for (var i = 0; i < years.length; i++) {
     var year = years[i];
-    strCalHtml += "<p class=h4>" + year + "</p>";
+    strCalHtml += "<p class=h4>" + year + " Working Day Calendar</p>";
     begin_date = new Date(year, 0, 1);
     start_day = begin_date.getDay()+1;
     if (start_day == 1){

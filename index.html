@@ -30,13 +30,13 @@
           
           <div class="row">
             <div class="col-sm-3"><label>Project Name: </label></div>
-            <div class="col-sm-9"><input type="text" id="txtProjName" size="25"></div>
+            <div class="col-sm-9"><input type="text" id="txtProjName" size="40"></div>
           </div>
           <br>
         
           <div class="row">
             <div class="col-sm-3"><label>Project ID: </label></div>
-            <div class="col-sm-9"><input type="text" id="txtProjID" size="20"></div>
+            <div class="col-sm-9"><input type="text" id="txtProjID" size="14"></div>
           </div>
           <br>
         
@@ -84,7 +84,59 @@
                   <input type="text" id="dpExceptions">
                 </td>
               </tr>
+              <tr>
+                <td><input type="checkbox" id="chkMoratYes"></td>
+                <td><input type="checkbox" id="chkMoratNo"></td>
+                <td>
+                  Moratoriums 
+                </td>
+              </tr>
             </table>
+            <div id="divMoratOptions" style="display: none;">
+              <div rng-num="0">Start: <input type="text" class="rngdp" rng-num="0_0">
+              Finish: <input type="text" class="rngdp" rng-num="0_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="0">
+              </div>
+              <div rng-num="1">Start: <input type="text" class="rngdp" rng-num="1_0">
+              Finish: <input type="text" class="rngdp" rng-num="1_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="1">
+              </div>
+              <div rng-num="2">Start: <input type="text" class="rngdp" rng-num="2_0">
+              Finish: <input type="text" class="rngdp" rng-num="2_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="2">
+              </div>
+              <div rng-num="3">Start: <input type="text" class="rngdp" rng-num="3_0">
+              Finish: <input type="text" class="rngdp" rng-num="3_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="3">
+              </div>
+              <div rng-num="4">Start: <input type="text" class="rngdp" rng-num="4_0">
+              Finish: <input type="text" class="rngdp" rng-num="4_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="4">
+              </div>
+              <div rng-num="5">Start: <input type="text" class="rngdp" rng-num="5_0">
+              Finish: <input type="text" class="rngdp" rng-num="5_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="5">
+              </div>
+              <div rng-num="6">Start: <input type="text" class="rngdp" rng-num="6_0">
+              Finish: <input type="text" class="rngdp" rng-num="6_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="6">
+              </div>
+              <div rng-num="7">Start: <input type="text" class="rngdp" rng-num="7_0">
+              Finish: <input type="text" class="rngdp" rng-num="7_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="7">
+              </div>
+              <div rng-num="8">Start: <input type="text" class="rngdp" rng-num="8_0">
+              Finish: <input type="text" class="rngdp" rng-num="8_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="8">
+              </div>
+              <div rng-num="9">Start: <input type="text" class="rngdp" rng-num="9_0">
+              Finish: <input type="text" class="rngdp" rng-num="9_1">
+              Repeat Annually: <input type="checkbox" class="rngchk" rng-num="9">
+              </div>
+              <button type="button" class="btn btn-default" id="addMorat">
+                <span class="glyphicon glyphicon-plus"></span>
+              </button>
+            </div>
           </p>
           <p>
             <button id='btnReset'>RESET</button>
@@ -106,7 +158,6 @@
         <div id="printContent">
           <p class="h4" id="printProjName"></p>
           <p class="h5" id="printProjID"></p>
-          <p class="h5" id="printCalTitle"></p>
           <div id="printCalTable"></div>
           <p>
             <span id='iconWorking'></span> Working Day

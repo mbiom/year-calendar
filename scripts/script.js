@@ -1,5 +1,6 @@
 var firstSelectedDate;
 var selectedYears = [ new Date().getFullYear() ];
+var moratCount = 0;
 
 function fillWorkweekSetting() {
   var strTableHtml  = "<TR>";
@@ -39,6 +40,16 @@ function toggleExceptions() {
     case 'chkExcpNo':
       include_exceptions = !isChecked;
       $('#chkExcpYes').prop('checked', include_exceptions);
+      break;
+    case 'chkMoratYes':
+      include_morat = isChecked;
+      $('#chkMoratNo').prop('checked', !include_morat);
+      $('#divMoratOptions').toggle(include_morat);
+      break;
+    case 'chkMoratNo':
+      include_morat = !isChecked;
+      $('#chkMoratYes').prop('checked', include_morat);
+      $('#divMoratOptions').toggle(include_morat);
       break;
     default:
       break;
@@ -91,8 +102,7 @@ function resetCalendar() {
 
 function submitCalendar () {
   $('#printProjName').html($('#txtProjName').val());
-  $('#printProjID').html($('#txtProjID').val());
-  $('#printCalTitle').html(selectedYears + ' Working Day Calendar');
+  $('#printProjID').html("Project ID: " + $('#txtProjID').val());
   $('#printCalTable').html($('#divCal').html());
 }
 
@@ -111,14 +121,69 @@ function getYearsList() {
     selectedYears.push(i);
 }
 
+function fillMoratOptions() {
+  morat_ranges = [];
+  for (var i = 0; i < 10; i++) {
+    morat_ranges[i] = [null, null];
+    morat_repeat[i] = false;
+  }
+  for (var i = 1; i < 10; i++)
+    $("div[rng-num='"+i+"']").hide();
+
+  $('#divMoratOptions .rngdp').datepicker()
+    .on('change', function(e){
+      console.log($(this).attr('rng-num'));
+      var rngs = $(this).attr('rng-num').split('_');
+      morat_ranges[parseInt(rngs[0])][parseInt(rngs[1])] = $(this).datepicker('getDate');
+      // console.log(morat_ranges);
+
+      var date1 = $("input[rng-num='"+rngs[0]+"_0']").datepicker('getDate');
+      var date2 = $("input[rng-num='"+rngs[0]+"_1']").datepicker('getDate');
+      if (!include_morat)
+        return;
+      if (!date1 || !date2)
+        return;
+      if (date1.getTime() > date2.getTime())
+        return;
+      if (date1.getYear() != date2.getYear())
+        return;
+      getYearCalHtml(selectedYears, $('#divCal'));
+    });
+
+  $('#divMoratOptions .rngchk').click(function(){
+    var rngNum = parseInt($(this).attr('rng-num'));
+    morat_repeat[rngNum] = $(this).is(':checked');
+    var date1 = $("input[rng-num='"+rngNum+"_0']").datepicker('getDate');
+    var date2 = $("input[rng-num='"+rngNum+"_1']").datepicker('getDate');
+    if (!include_morat)
+      return;
+    if (!date1 || !date2)
+      return;
+    if (date1.getTime() > date2.getTime())
+      return;
+    if (date1.getYear() != date2.getYear())
+      return;
+    getYearCalHtml(selectedYears, $('#divCal'));
+  });
+
+  $('#addMorat').click(function() {
+    console.log(moratCount);
+    if (moratCount > 7)
+      $(this).hide();
+    if (moratCount > 8)
+      return;
+
+    moratCount++;
+    $("div[rng-num='"+moratCount+"']").show();
+  });
+}
+
 $(document).ready(function(){
   
   fillWorkweekSetting();
   $('#dpStartDate').datepicker({dateFormat: 'MM d, yy' })
     .datepicker("setDate", new Date())
     .on('change', function(e) {
-      var strDate = $(this).val();
-      var year = parseInt(strDate.substr(strDate.length - 4)) || 2017;
       getYearsList();
       getYearCalHtml(selectedYears, $('#divCal'));
     });
@@ -138,16 +203,19 @@ $(document).ready(function(){
 
   $('#chkHoliNo').prop('checked', true);
   $('#chkExcpNo').prop('checked', true);
+  $('#chkMoratNo').prop('checked', true);
   $('#chkHoliYes').click(toggleExceptions);
   $('#chkHoliNo').click(toggleExceptions);
   $('#chkExcpYes').click(toggleExceptions);
   $('#chkExcpNo').click(toggleExceptions);
+  $('#chkMoratYes').click(toggleExceptions);
+  $('#chkMoratNo').click(toggleExceptions);
 
   openExceptionPickers();
+  fillMoratOptions();
 
   $('#btnReset').click(resetCalendar);
   $('#btnSubmit').click(submitCalendar);
-
 
   getYearCalHtml(selectedYears, $('#divCal'));
 });

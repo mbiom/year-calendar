@@ -30,6 +30,7 @@ td.holiday {
 button.ui-datepicker-trigger {
 	border: none;
 	text-decoration: underline;
+	background-color: #CCC;
 }
 #dpHolidays, #dpExceptions {
 	width: 15px;
@@ -81,3 +82,15 @@ button.ui-datepicker-trigger {
 	margin-top: -15px;
 	display: none;
 }
+#divMoratOptions {
+	text-align: center;
+}
+#divMoratOptions input {
+	width: 90px;
+	margin: 5px;
+}
+#addMorat {
+	margin-top: 20px;
+	border-radius: 20px;
+}
+#addMorat:focus {outline: 0;}

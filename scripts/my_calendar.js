@@ -19,7 +19,7 @@ function day_title(day_name) {
   strCalHtml +="<TD WIDTH=35>"+day_name+"</TD>";
 }
 
-function check_holiday (dt_date) {  // check for market holidays
+function check_holiday (dt_date, exc = true) {  // check for market holidays
 // dt_date = new Date("2017-04-14T12:01:00Z"); // for testing purposes
   // check simple dates (month/date - no leading zeroes)
   var n_date = dt_date.getDate();
@@ -28,8 +28,8 @@ function check_holiday (dt_date) {  // check for market holidays
   var s_day = dt_date.getDay(); // day of the week 0-6
 
   var s_date0 = (n_month<10?'0':'')+n_month+(n_date<10?'/0':'/')+n_date+'/'+s_year;
-  if (custom_holidays.indexOf(s_date0) > -1)
-    return "Custom Holiday";
+  if (exc && include_holidays && custom_holidays.indexOf(s_date0) > -1)
+    return false;
   
   var s_date1 = n_month + '/' + n_date;
   if (s_day!=6 && s_day!=0) {
@@ -124,12 +124,11 @@ function check_exception (dt_date) {
 
 function check_moratorium (dt_date) {
   for (var i = 0; i < morat_ranges.length; i++) {
-    var morat_days = morat_ranges[i];
-    if (!morat_days[0] || !morat_days[1])
+    if (!morat_ranges[i][0] || !morat_ranges[i][1])
       continue;
+    
+    var morat_days = [new Date(morat_ranges[i][0].getTime()), new Date(morat_ranges[i][1].getTime())];
     if (morat_days[0].getTime() > morat_days[1].getTime())
-      continue;
-    if (morat_days[0].getYear() != morat_days[1].getYear())
       continue;
     if (!morat_repeat[i]) {
       if (dt_date.getTime() >= morat_days[0].getTime() && dt_date.getTime() <= morat_days[1].getTime())
@@ -138,8 +137,13 @@ function check_moratorium (dt_date) {
     else {
       var myYear = dt_date.getFullYear();
       var moratd1 = morat_days[0], moratd2 = morat_days[1];
+      var diffYear = moratd2.getFullYear() - moratd1.getFullYear();
       moratd1.setFullYear(myYear);
-      moratd2.setFullYear(myYear);
+      moratd2.setFullYear(myYear + diffYear);
+      if (dt_date.getTime() >= moratd1.getTime() && dt_date.getTime() <= moratd2.getTime())
+        return true;
+      moratd1.setFullYear(myYear-1);
+      moratd2.setFullYear(myYear-1 + diffYear);
       if (dt_date.getTime() >= moratd1.getTime() && dt_date.getTime() <= moratd2.getTime())
         return true;
     }
@@ -149,7 +153,7 @@ function check_moratorium (dt_date) {
 }
 
 function hilite_nonworking(dayOfWeek, dt_date) {
-  if (!include_holidays && check_holiday(dt_date))
+  if (check_holiday(dt_date))
     return "holiday";
   if (include_exceptions && check_exception(dt_date))
     return "nonworking";

@@ -89,8 +89,36 @@ button.ui-datepicker-trigger {
 	width: 90px;
 	margin: 5px;
 }
+.del-morat {
+	margin-right: 15px;
+	border-radius: 20px;
+}
+.del-morat:focus {outline: 0;}
 #addMorat {
 	margin-top: 20px;
 	border-radius: 20px;
 }
 #addMorat:focus {outline: 0;}
+
+.ui-datepicker-calendar td.ui-state-disabled {
+	opacity: 1 !important;
+}
+td.holid {
+	width: 32px;
+}
+td.holid a.ui-state-default {
+	border-top: 3px solid !important;
+	border-bottom: 3px solid !important;
+	width: 32px;
+	white-space: nowrap;
+	overflow-x: hidden;
+}
+td.holid:not(.ui-state-highlight) a.ui-state-default::before {
+	content: "\00a0 \00a0 H \00a0 \00a0 ";
+}
+td.holid.ui-state-highlight a {
+	color: #555555 !important;
+	background: #e6e6e6 url("https://code.jquery.com/ui/1.12.0/themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x !important;
+	border-top: none !important;
+	border-bottom: none !important;
+}

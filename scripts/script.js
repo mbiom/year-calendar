@@ -64,6 +64,14 @@ function openExceptionPickers() {
     onSelect: function(dateText) {
       custom_holidays = $('#dpHolidays').val().split(', ');
       getYearCalHtml(selectedYears, $('#divCal'));
+    },
+    beforeShowDay: function(date) {
+      var highlight = check_holiday(date, false);
+      if (highlight) {
+        return [true, "holid", highlight];
+      } else {
+        return [false, '', ''];
+      }
     }
   });
 
@@ -79,10 +87,19 @@ function openExceptionPickers() {
 function resetCalendar() {
   $('#txtProjName').val('');
   $('#txtProjDur').val('');
+  $('.num-alert').hide();
+  $('#txtProjID').val('');
   $('#dpStartDate').val(firstSelectedDate);
 
-  work_weekdays = [1,1,1,1,1,0,0];
+  work_weekdays = [0,1,1,1,1,1,0];
   fillWorkweekSetting();
+
+  $('#chkHoliYes').prop('checked', false);
+  $('#chkHoliNo').prop('checked', true);
+  $('#chkExcpYes').prop('checked', false);
+  $('#chkExcpNo').prop('checked', true);
+  $('#chkMoratYes').prop('checked', false);
+  $('#chkMoratNo').prop('checked', true);
 
   include_holidays = false;
   custom_holidays = [];
@@ -90,11 +107,17 @@ function resetCalendar() {
   include_exceptions = false;
   custom_exceptions = [];
   $('#dpExceptions').val('');
-
-  $('#chkHoliYes').prop('checked', false);
-  $('#chkHoliNo').prop('checked', true);
-  $('#chkExcpYes').prop('checked', false);
-  $('#chkExcpNo').prop('checked', true);
+  include_morat = false;
+  for (var i = 0; i < 10; i++) {
+    morat_ranges[i] = [null, null];
+    morat_repeat[i] = false;
+    $("input[rng-num='"+i+"_0']").val('');
+    $("input[rng-num='"+i+"_1']").val('');
+    $(".rngchk[rng-num='"+i+"']").prop('checked', false);
+    $("div[rng-num='"+(i+1)+"']").hide();
+  }
+  moratCount = 0;
+  $('#divMoratOptions').hide();
 
   selectedYears = [ new Date().getFullYear() ];
   getYearCalHtml(selectedYears, $('#divCal'));
@@ -115,7 +138,7 @@ Date.prototype.addDays = function(days) {
 function getYearsList() {
   selectedYears = [];
   var startDate = $('#dpStartDate').datepicker("getDate");
-  var projDuration = parseInt($('#txtProjDur').val());
+  var projDuration = parseInt($('#txtProjDur').val()) || 0;
   var endDate = startDate.addDays(projDuration);
   for (var i = startDate.getFullYear(); i <= endDate.getFullYear(); i++)
     selectedYears.push(i);
@@ -123,19 +146,28 @@ function getYearsList() {
 
 function fillMoratOptions() {
   morat_ranges = [];
+  var strMoratHtml = "";
   for (var i = 0; i < 10; i++) {
+    strMoratHtml += "<div rng-num='" + i 
+      + "'><button type='button' class='btn btn-xs btn-default del-morat' rng-num='"
+      + i + "'><span class='glyphicon glyphicon-minus'></span>"
+      + "</button>Start: <input type='text' class=rngdp rng-num='"
+      + i + "_0'>Finish: <input type='text' class='rngdp' rng-num='" 
+      + i + "_1'>&emsp;&emsp; Repeat Annually: <input type='checkbox' class='rngchk' rng-num='"
+      + i + "'></div>";
     morat_ranges[i] = [null, null];
     morat_repeat[i] = false;
   }
+  $('#divMoratOptions').html(strMoratHtml + $('#divMoratOptions').html());
+  $('#divMoratOptions').hide();
+
   for (var i = 1; i < 10; i++)
     $("div[rng-num='"+i+"']").hide();
 
   $('#divMoratOptions .rngdp').datepicker()
     .on('change', function(e){
-      console.log($(this).attr('rng-num'));
       var rngs = $(this).attr('rng-num').split('_');
       morat_ranges[parseInt(rngs[0])][parseInt(rngs[1])] = $(this).datepicker('getDate');
-      // console.log(morat_ranges);
 
       var date1 = $("input[rng-num='"+rngs[0]+"_0']").datepicker('getDate');
       var date2 = $("input[rng-num='"+rngs[0]+"_1']").datepicker('getDate');
@@ -144,8 +176,6 @@ function fillMoratOptions() {
       if (!date1 || !date2)
         return;
       if (date1.getTime() > date2.getTime())
-        return;
-      if (date1.getYear() != date2.getYear())
         return;
       getYearCalHtml(selectedYears, $('#divCal'));
     });
@@ -161,8 +191,6 @@ function fillMoratOptions() {
       return;
     if (date1.getTime() > date2.getTime())
       return;
-    if (date1.getYear() != date2.getYear())
-      return;
     getYearCalHtml(selectedYears, $('#divCal'));
   });
 
@@ -175,6 +203,34 @@ function fillMoratOptions() {
 
     moratCount++;
     $("div[rng-num='"+moratCount+"']").show();
+  });
+
+  $('.del-morat').click(function() {
+    var rngNum = parseInt($(this).attr('rng-num'));
+    for (var i = rngNum+1; i <= moratCount; i++) {
+      $("input[rng-num='"+(i-1)+"_0']").val($("input[rng-num='"+i+"_0']").val());
+      $("input[rng-num='"+(i-1)+"_1']").val($("input[rng-num='"+i+"_1']").val());
+      if (!morat_ranges[i][0])
+        morat_ranges[i-1][0] = null;
+      else
+        morat_ranges[i-1][0] = new Date(morat_ranges[i][0].getTime());
+      if (!morat_ranges[i][1])
+        morat_ranges[i-1][1] = null;
+      else
+        morat_ranges[i-1][1] = new Date(morat_ranges[i][1].getTime());
+
+      $(".rngchk[rng-num='"+(i-1)+"']").prop('checked', $(".rngchk[rng-num='"+i+"']").is(':checked'));
+    }
+    
+    morat_ranges[moratCount][0] = null;
+    morat_ranges[moratCount][1] = null;
+    $("input[rng-num='"+moratCount+"_0']").val('');
+    $("input[rng-num='"+moratCount+"_1']").val('');
+    $(".rngchk[rng-num='"+moratCount+"']").prop('checked', false);
+    $("div[rng-num='"+moratCount+"']").hide();
+    moratCount--;
+
+    getYearCalHtml(selectedYears, $('#divCal'));
   });
 }
 
@@ -189,16 +245,27 @@ $(document).ready(function(){
     });
   firstSelectedDate = $('#dpStartDate').val();
 
+  var delay = (function(){
+    var timer = 0;
+    return function(callback, ms){
+    clearTimeout (timer);
+    timer = setTimeout(callback, ms);
+   };
+  })();
+
   $('#txtProjDur').on('keyup', function(){
-    var duration = parseInt($('#txtProjDur').val());
-    if (duration < 1 || duration > 1000 || !duration) {
-      $('.num-alert').show();
-      return;
-    }
-    else {
-      getYearsList();
-      getYearCalHtml(selectedYears, $('#divCal'));
-    }
+    delay(function(){
+      var duration = parseInt($('#txtProjDur').val());
+      if (duration < 1 || duration > 1000 || !duration) {
+        $('.num-alert').show();
+        return;
+      }
+      else {
+        $('.num-alert').hide();
+        getYearsList();
+        getYearCalHtml(selectedYears, $('#divCal'));
+      }
+    }, 1000 );
   });
 
   $('#chkHoliNo').prop('checked', true);

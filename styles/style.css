@@ -85,7 +85,7 @@ button.ui-datepicker-trigger {
 #divMoratOptions {
 	text-align: center;
 }
-#divMoratOptions input {
+#divMoratOptions input[type="text"] {
 	width: 90px;
 	margin: 5px;
 }

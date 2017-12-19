@@ -173,9 +173,12 @@ function fill_table(year, m_name,m_length,mm) {
   for (var i  = 0; i < weekdays.length; i++)
     day_title(weekdays[i]);
   strCalHtml +="</TR><TR>";
-  for (var i=1;i<start_day;i++) {
-    strCalHtml +="<TD>";
+  if (start_day != 8) {
+    for (var i=1;i<start_day;i++) {
+      strCalHtml +="<TD></TD>";
+    }  
   }
+  
   for (var i = start_day; i<8; i++) {
     var spcDay = hilite_nonworking(i, new Date(year, mm, day));
     strCalHtml += "<TD class='" + spcDay + "'>";
@@ -229,6 +232,7 @@ function getYearCalHtml(years, ele) {
       strCalHtml += "</TD>";
     }
     strCalHtml += "</TABLE>";
+    strCalHtml += "<BR>";
   }
   
   ele.html(strCalHtml);

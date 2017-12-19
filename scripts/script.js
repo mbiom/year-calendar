@@ -63,7 +63,8 @@ function openExceptionPickers() {
   holiPicker.multiDatesPicker({
     onSelect: function(dateText) {
       custom_holidays = $('#dpHolidays').val().split(', ');
-      getYearCalHtml(selectedYears, $('#divCal'));
+      if (include_holidays)
+        getYearCalHtml(selectedYears, $('#divCal'));
     },
     beforeShowDay: function(date) {
       var highlight = check_holiday(date, false);
@@ -220,6 +221,7 @@ function fillMoratOptions() {
         morat_ranges[i-1][1] = new Date(morat_ranges[i][1].getTime());
 
       $(".rngchk[rng-num='"+(i-1)+"']").prop('checked', $(".rngchk[rng-num='"+i+"']").is(':checked'));
+      morat_repeat[i-1] = morat_repeat[i];
     }
     
     morat_ranges[moratCount][0] = null;
@@ -228,10 +230,167 @@ function fillMoratOptions() {
     $("input[rng-num='"+moratCount+"_1']").val('');
     $(".rngchk[rng-num='"+moratCount+"']").prop('checked', false);
     $("div[rng-num='"+moratCount+"']").hide();
+    morat_repeat[moratCount] = false;
     moratCount--;
 
     getYearCalHtml(selectedYears, $('#divCal'));
   });
+}
+
+function exportToPdf() {
+  var doc = new jsPDF({orientation: 'p',
+    unit: 'pt',
+    format: 'a4'});
+  var docMargin = {
+    left: 35,
+    top: 100,
+  }
+  var cellWidth = 25, cellHeight = 20;
+
+  doc.setFontSize(16);
+  doc.setFontType("bold");
+  doc.text(docMargin.left, 50, $('#txtProjName').val()); 
+  doc.setFontSize(15);
+  doc.setFontType("regular");
+  doc.text(docMargin.left, 70, "Project ID: " + $('#txtProjID').val()); 
+
+  var ele = $("#printCalTable>table");
+  for (var tblNo = 0; tblNo < ele.length; tblNo++) {
+    var tbljson = mapDOM(ele[tblNo], true);
+    tbljson = tbljson['content'][0]['content'];
+    console.log(tbljson);    
+
+    doc.setFontSize(14);
+    doc.text(docMargin.left, 92, selectedYears[tblNo] + ' Working Day Calendar'); 
+
+    for (var i = 0 ; i < 22; i++) {
+      doc.setLineWidth(i % 7 == 0 ? 2 : 1);
+      doc.line(docMargin.left + cellWidth*i, docMargin.top, docMargin.left + cellWidth*i, docMargin.top + cellHeight * 32);
+    }
+    for (var i = 0 ; i < 33; i++) {
+      doc.setLineWidth(i % 8 == 0 ? 2 : 1);
+      doc.line(docMargin.left, docMargin.top+cellHeight*i, docMargin.left+cellWidth*21, docMargin.top + cellHeight * i);
+    }
+
+    for (var i = 1; i<5; i++) {
+
+      var cont3tbl = tbljson[i]['content'];
+      for (var j=0; j<3; j++){//months in a row
+        if (!cont3tbl[j]['content']) continue;
+        var d1 = cont3tbl[j]['content'][0]['content'][0]['content'];
+        var m1 = 0;
+        for (var k=0; k<d1.length; k++) {
+          var d2 = d1[k]['content']; //weeks of a month
+          if (!d2)  {
+            m1++;
+            continue;
+          }
+          for (var l = 0; l<d2.length; l++) {
+            if (!d2[l]['content']) continue;
+            doc.setFontSize(12);
+            var cont = d2[l]['content'][0]; //day in a week
+            var startX = docMargin.left+cellWidth*(j*7+l), startY = docMargin.top+cellHeight*((i-1)*8+k-m1);
+
+            if (cont['content']) {
+              cont = cont['content'][0];
+              doc.setDrawColor(0,0,0);
+              doc.setFillColor(255,255,255);
+              doc.rect(startX+2, startY+1, cellWidth*7-3, cellHeight-1, 'F');
+            }
+            if (d2[l]['attributes'] && d2[l]['attributes']['class'] && d2[l]['attributes']['class'] == 'nonworking') {
+              doc.setFillColor(187,187,187);
+              doc.rect(startX+1, startY+1, cellWidth-2, cellHeight-1, 'F');
+            }
+            if (d2[l]['attributes'] && d2[l]['attributes']['class'] && d2[l]['attributes']['class'] == 'holiday') {
+              doc.setFillColor(187,187,187);
+              doc.rect(startX+1, startY+1, cellWidth-2, cellHeight-1, 'F');
+              doc.setLineWidth(2);
+              doc.line(startX+1, startY+1, startX+cellWidth, startY+1);
+              doc.line(startX+1, startY+cellHeight-1, startX+cellWidth, startY+cellHeight-1);
+            }
+
+            var textOffsetX = cont.length <=2 ? 12 - 3 * cont.length : 6;
+            if (!parseInt(cont))
+              doc.setFontType("bold");
+            else
+              doc.setFontType("regular");
+            doc.text(startX+textOffsetX, startY+cellHeight-6, cont); 
+          }
+        }
+      }
+    }
+    if (tblNo == ele.length-1) {
+      doc.setFontSize(14);
+      doc.setLineWidth(1);
+      doc.setFillColor(255,255,255);
+      doc.setDrawColor(0,0,0);
+      doc.rect(50, 760, 25, 20, 'FD');
+      doc.text(90, 775, "Working Day");
+      doc.setFillColor(187,187,187);
+      doc.setDrawColor(0,0,0);
+      doc.rect(220, 760, 25, 20, 'FD');
+      doc.text(260, 775, "Non-Working Day");
+      doc.setFillColor(187,187,187);
+      doc.setDrawColor(187,187,187);
+      doc.rect(400, 760, 25, 20, 'FD');
+      doc.setDrawColor(0,0,0);
+      doc.setLineWidth(2);
+      doc.line(400, 760, 425, 760);
+      doc.line(400, 780, 425, 780);
+      doc.text(409, 775, "H");
+      doc.text(440, 775, "Holiday");
+    }
+    else
+      doc.addPage();
+  }
+  doc.save('cal.pdf');
+}
+
+function mapDOM(element, json) {
+    var treeObject = {};
+
+    // If string convert to document Node
+    if (typeof element === "string") {
+        if (window.DOMParser) {
+              parser = new DOMParser();
+              docNode = parser.parseFromString(element,"text/xml");
+        } else { // Microsoft strikes again
+              docNode = new ActiveXObject("Microsoft.XMLDOM");
+              docNode.async = false;
+              docNode.loadXML(element); 
+        } 
+        element = docNode.firstChild;
+    }
+
+    //Recursively loop through DOM elements and assign properties to object
+    function treeHTML(element, object) {
+        object["type"] = element.nodeName;
+        var nodeList = element.childNodes;
+        if (nodeList != null) {
+            if (nodeList.length) {
+                object["content"] = [];
+                for (var i = 0; i < nodeList.length; i++) {
+                    if (nodeList[i].nodeType == 3) {
+                        object["content"].push(nodeList[i].nodeValue);
+                    } else {
+                        object["content"].push({});
+                        treeHTML(nodeList[i], object["content"][object["content"].length -1]);
+                    }
+                }
+            }
+        }
+        if (element.attributes != null) {
+            if (element.attributes.length) {
+                object["attributes"] = {};
+                for (var i = 0; i < element.attributes.length; i++) {
+                    object["attributes"][element.attributes[i].nodeName] = element.attributes[i].nodeValue;
+                }
+            }
+        }
+    }
+    treeHTML(element, treeObject);
+
+    return treeObject;
 }
 
 $(document).ready(function(){
@@ -285,4 +444,6 @@ $(document).ready(function(){
   $('#btnSubmit').click(submitCalendar);
 
   getYearCalHtml(selectedYears, $('#divCal'));
+
+  $('#btnPrint').click(exportToPdf);
 });

@@ -16,6 +16,10 @@
 td.nonworking {
 	background-color: #BBB;
 }
+td.working-holiday {
+	font-weight: bold;
+	box-shadow: inset 0px 1px 0px 0px #000, inset 0px -1px 0px 0px #000;
+}
 td.holiday {
 	background-color: #BBB;
 	font-weight: bold;
@@ -100,18 +104,36 @@ button.ui-datepicker-trigger {
 }
 #addMorat:focus {outline: 0;}
 
-.ui-datepicker-calendar td.ui-state-disabled {
-	opacity: 1 !important;
-}
-td.holid {
+
+td.holid:not(.ui-state-highlight) {
 	width: 32px;
 }
-td.holid a.ui-state-default {
+td.holid:not(.ui-state-highlight) a {
 	border-top: 3px solid !important;
 	border-bottom: 3px solid !important;
 	width: 32px;
 	white-space: nowrap;
 	overflow-x: hidden;
+	background: #743620 none !important;
+	color: white !important;
+}
+td.holid:not(.ui-state-highlight) a::before {
+	content: "\00a0 \00a0 H \00a0 \00a0 ";
+}
+td.holid.ui-state-highlight a{
+	border: 1px solid #d3d3d3 !important;
+    background: #e6e6e6 url(https://code.jquery.com/ui/1.12.0/themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x !important;
+    color: #555555 !important;
+}
+/*td.holid a.ui-state-default {
+	border-top: 3px solid !important;
+	border-bottom: 3px solid !important;
+	width: 32px;
+	white-space: nowrap;
+	overflow-x: hidden;
+}
+.ui-datepicker-calendar td.ui-state-disabled {
+	opacity: 1 !important;
 }
 td.holid:not(.ui-state-highlight) a.ui-state-default::before {
 	content: "\00a0 \00a0 H \00a0 \00a0 ";
@@ -121,4 +143,4 @@ td.holid.ui-state-highlight a {
 	background: #e6e6e6 url("https://code.jquery.com/ui/1.12.0/themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x !important;
 	border-top: none !important;
 	border-bottom: none !important;
-}
+}*/

@@ -19,7 +19,7 @@ function day_title(day_name) {
   strCalHtml +="<TD WIDTH=35>"+day_name+"</TD>";
 }
 
-function check_holiday (dt_date, exc = true) {  // check for market holidays
+function check_holiday (dt_date) {  // check for market holidays
 // dt_date = new Date("2017-04-14T12:01:00Z"); // for testing purposes
   // check simple dates (month/date - no leading zeroes)
   var n_date = dt_date.getDate();
@@ -28,9 +28,30 @@ function check_holiday (dt_date, exc = true) {  // check for market holidays
   var s_day = dt_date.getDay(); // day of the week 0-6
 
   var s_date0 = (n_month<10?'0':'')+n_month+(n_date<10?'/0':'/')+n_date+'/'+s_year;
-  if (exc && include_holidays && custom_holidays.indexOf(s_date0) > -1)
-    return false;
+  // if (exc && include_holidays && custom_holidays.indexOf(s_date0) > -1)
+  //   return false;
   
+  var hdName = default_holiday_name(dt_date);
+  if (hdName) { //default holidays
+    if (custom_holidays.indexOf(s_date0) > -1)
+      return false;
+    else
+      return hdName;
+  }
+  if (custom_holidays.indexOf(s_date0) > -1) { //custom holidays
+    return 'custom';
+  }
+
+  return false;
+} 
+
+function default_holiday_name (dt_date) {
+  var n_date = dt_date.getDate();
+  var n_month = dt_date.getMonth() + 1;
+  var s_year = dt_date.getFullYear();
+  var s_day = dt_date.getDay(); // day of the week 0-6
+
+  var hdName = '';
   var s_date1 = n_month + '/' + n_date;
   if (s_day!=6 && s_day!=0) {
     switch(s_date1){
@@ -102,15 +123,8 @@ function check_holiday (dt_date, exc = true) {  // check for market holidays
   ) return 'Memorial Day';
   if (   s_date3 == '3/1/1'  // Cesar Chavez Day, last Monday in March
   ) return 'Memorial Day';
-  // misc complex dates
-  // if (s_date1 == '1/20' && (((dt_date.getFullYear() - 1937) % 4) == 0) 
-  //   // Inauguration Day, January 20th every four years, starting in 1937. 
-  // ) return 'Inauguration Day';
-  //  if (n_month == 11 && n_date >= 2 && n_date < 9 && n_wday == 2
-  //   // Election Day, Tuesday on or after November 2. 
-  //  ) return 'Election Day';
-  return false;
-} 
+  return '';
+}
 
 function check_exception (dt_date) {
   var n_date = dt_date.getDate();
@@ -154,7 +168,7 @@ function check_moratorium (dt_date) {
 
 function hilite_nonworking(dayOfWeek, dt_date) {
   if (check_holiday(dt_date))
-    return "holiday";
+    return (!include_holidays ? "" : "working-") + "holiday";
   if (include_exceptions && check_exception(dt_date))
     return "nonworking";
   if (!work_weekdays[(dayOfWeek-1) % 7])
@@ -182,7 +196,7 @@ function fill_table(year, m_name,m_length,mm) {
   for (var i = start_day; i<8; i++) {
     var spcDay = hilite_nonworking(i, new Date(year, mm, day));
     strCalHtml += "<TD class='" + spcDay + "'>";
-    strCalHtml += (spcDay=="holiday" ? "H" : day) + "</TD>";
+    strCalHtml += ((spcDay=="holiday" || spcDay=="working-holiday") ? "H" : day) + "</TD>";
     day++;
   }
   strCalHtml +="<TR>";
@@ -192,7 +206,7 @@ function fill_table(year, m_name,m_length,mm) {
     for (var i=1;i<=7 && day<=m_length;i++) {
       var spcDay = hilite_nonworking(i, new Date(year, mm, day));
       strCalHtml += "<TD class='" + spcDay + "'>";
-      strCalHtml += (spcDay=="holiday" ? "H" : day) + "</TD>";
+      strCalHtml += ((spcDay=="holiday" || spcDay=="working-holiday") ? "H" : day) + "</TD>";
       day++;
       num_in_row++;
     }

@@ -63,15 +63,14 @@ function openExceptionPickers() {
   holiPicker.multiDatesPicker({
     onSelect: function(dateText) {
       custom_holidays = $('#dpHolidays').val().split(', ');
-      if (include_holidays)
-        getYearCalHtml(selectedYears, $('#divCal'));
+      getYearCalHtml(selectedYears, $('#divCal'));
     },
     beforeShowDay: function(date) {
-      var highlight = check_holiday(date, false);
+      var highlight = default_holiday_name(date);
       if (highlight) {
         return [true, "holid", highlight];
       } else {
-        return [false, '', ''];
+        return [true, '', ''];
       }
     }
   });
@@ -243,16 +242,9 @@ function exportToPdf() {
     format: 'a4'});
   var docMargin = {
     left: 35,
-    top: 100,
+    top: 120,
   }
   var cellWidth = 25, cellHeight = 20;
-
-  doc.setFontSize(16);
-  doc.setFontType("bold");
-  doc.text(docMargin.left, 50, $('#txtProjName').val()); 
-  doc.setFontSize(15);
-  doc.setFontType("regular");
-  doc.text(docMargin.left, 70, "Project ID: " + $('#txtProjID').val()); 
 
   var ele = $("#printCalTable>table");
   for (var tblNo = 0; tblNo < ele.length; tblNo++) {
@@ -260,8 +252,15 @@ function exportToPdf() {
     tbljson = tbljson['content'][0]['content'];
     console.log(tbljson);    
 
+    doc.setFontSize(16);
+    doc.setFontType("bold");
+    doc.text(docMargin.left, 60, $('#txtProjName').val()); 
+    doc.setFontSize(15);
+    doc.setFontType("regular");
+    doc.text(docMargin.left, 80, "Project ID: " + $('#txtProjID').val()); 
+
     doc.setFontSize(14);
-    doc.text(docMargin.left, 92, selectedYears[tblNo] + ' Working Day Calendar'); 
+    doc.text(docMargin.left, 105, selectedYears[tblNo] + ' Working Day Calendar'); 
 
     for (var i = 0 ; i < 22; i++) {
       doc.setLineWidth(i % 7 == 0 ? 2 : 1);
@@ -295,18 +294,22 @@ function exportToPdf() {
               cont = cont['content'][0];
               doc.setDrawColor(0,0,0);
               doc.setFillColor(255,255,255);
-              doc.rect(startX+2, startY+1, cellWidth*7-3, cellHeight-1, 'F');
+              doc.rect(startX+2, startY+1, cellWidth*7-3, cellHeight-1.5, 'F');
             }
-            if (d2[l]['attributes'] && d2[l]['attributes']['class'] && d2[l]['attributes']['class'] == 'nonworking') {
-              doc.setFillColor(187,187,187);
-              doc.rect(startX+1, startY+1, cellWidth-2, cellHeight-1, 'F');
-            }
-            if (d2[l]['attributes'] && d2[l]['attributes']['class'] && d2[l]['attributes']['class'] == 'holiday') {
-              doc.setFillColor(187,187,187);
-              doc.rect(startX+1, startY+1, cellWidth-2, cellHeight-1, 'F');
-              doc.setLineWidth(2);
-              doc.line(startX+1, startY+1, startX+cellWidth, startY+1);
-              doc.line(startX+1, startY+cellHeight-1, startX+cellWidth, startY+cellHeight-1);
+            if (d2[l]['attributes'] && d2[l]['attributes']['class']) {
+              if (d2[l]['attributes']['class'] == 'nonworking') {
+                doc.setFillColor(187,187,187);
+                doc.rect(startX+1, startY+1, cellWidth-2, cellHeight-1, 'F');
+              }
+              if (d2[l]['attributes']['class'] == 'holiday') {
+                doc.setFillColor(187,187,187);
+                doc.rect(startX+1, startY+1, cellWidth-2, cellHeight-1, 'F');
+              }
+              if (d2[l]['attributes']['class'] == 'holiday' || d2[l]['attributes']['class'] == 'working-holiday') {
+                doc.setLineWidth(2);
+                doc.line(startX+1, startY+1, startX+cellWidth, startY+1);
+                doc.line(startX+1, startY+cellHeight-1, startX+cellWidth, startY+cellHeight-1);
+              }
             }
 
             var textOffsetX = cont.length <=2 ? 12 - 3 * cont.length : 6;
@@ -319,28 +322,28 @@ function exportToPdf() {
         }
       }
     }
-    if (tblNo == ele.length-1) {
-      doc.setFontSize(14);
-      doc.setLineWidth(1);
-      doc.setFillColor(255,255,255);
-      doc.setDrawColor(0,0,0);
-      doc.rect(50, 760, 25, 20, 'FD');
-      doc.text(90, 775, "Working Day");
-      doc.setFillColor(187,187,187);
-      doc.setDrawColor(0,0,0);
-      doc.rect(220, 760, 25, 20, 'FD');
-      doc.text(260, 775, "Non-Working Day");
-      doc.setFillColor(187,187,187);
-      doc.setDrawColor(187,187,187);
-      doc.rect(400, 760, 25, 20, 'FD');
-      doc.setDrawColor(0,0,0);
-      doc.setLineWidth(2);
-      doc.line(400, 760, 425, 760);
-      doc.line(400, 780, 425, 780);
-      doc.text(409, 775, "H");
-      doc.text(440, 775, "Holiday");
-    }
-    else
+
+    doc.setFontSize(14);
+    doc.setLineWidth(1);
+    doc.setFillColor(255,255,255);
+    doc.setDrawColor(0,0,0);
+    doc.rect(50, 770, 25, 20, 'FD');
+    doc.text(90, 785, "Working Day");
+    doc.setFillColor(187,187,187);
+    doc.setDrawColor(0,0,0);
+    doc.rect(220, 770, 25, 20, 'FD');
+    doc.text(260, 785, "Non-Working Day");
+    doc.setFillColor(187,187,187);
+    doc.setDrawColor(187,187,187);
+    doc.rect(400, 770, 25, 20, 'FD');
+    doc.setDrawColor(0,0,0);
+    doc.setLineWidth(2);
+    doc.line(400, 770, 425, 770);
+    doc.line(400, 790, 425, 790);
+    doc.text(409, 785, "H");
+    doc.text(440, 785, "Holiday");
+
+    if (tblNo != ele.length-1) 
       doc.addPage();
   }
   doc.save('cal.pdf');

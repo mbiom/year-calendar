@@ -81,7 +81,7 @@ button.ui-datepicker-trigger {
 	font-weight: bold;
 	text-align: center;
 }
-.num-alert {
+.num-alert, .name-alert {
 	color: red;
 	margin-top: -15px;
 	display: none;
@@ -125,22 +125,3 @@ td.holid.ui-state-highlight a{
     background: #e6e6e6 url(https://code.jquery.com/ui/1.12.0/themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x !important;
     color: #555555 !important;
 }
-/*td.holid a.ui-state-default {
-	border-top: 3px solid !important;
-	border-bottom: 3px solid !important;
-	width: 32px;
-	white-space: nowrap;
-	overflow-x: hidden;
-}
-.ui-datepicker-calendar td.ui-state-disabled {
-	opacity: 1 !important;
-}
-td.holid:not(.ui-state-highlight) a.ui-state-default::before {
-	content: "\00a0 \00a0 H \00a0 \00a0 ";
-}
-td.holid.ui-state-highlight a {
-	color: #555555 !important;
-	background: #e6e6e6 url("https://code.jquery.com/ui/1.12.0/themes/smoothness/images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x !important;
-	border-top: none !important;
-	border-bottom: none !important;
-}*/

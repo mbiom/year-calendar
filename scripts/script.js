@@ -88,6 +88,7 @@ function resetCalendar() {
   $('#txtProjName').val('');
   $('#txtProjDur').val('');
   $('.num-alert').hide();
+  $('.name-alert').hide();
   $('#txtProjID').val('');
   $('#dpStartDate').val(firstSelectedDate);
 
@@ -250,14 +251,19 @@ function exportToPdf() {
   for (var tblNo = 0; tblNo < ele.length; tblNo++) {
     var tbljson = mapDOM(ele[tblNo], true);
     tbljson = tbljson['content'][0]['content'];
-    console.log(tbljson);    
-
+     
+    doc.setFontType("regular");
     doc.setFontSize(16);
     doc.setFontType("bold");
-    doc.text(docMargin.left, 60, $('#txtProjName').val()); 
+    var splitTitle = doc.splitTextToSize($('#txtProjName').val(), 525);
+    
+    var nameTop = splitTitle.length == 1 ? 60 : 45;
+    doc.text(docMargin.left, nameTop, splitTitle);
+    // doc.text(docMargin.left, 60, $('#txtProjName').val()); 
     doc.setFontSize(15);
     doc.setFontType("regular");
-    doc.text(docMargin.left, 80, "Project ID: " + $('#txtProjID').val()); 
+    nameTop = splitTitle.length == 1 ? 80 : 83;
+    doc.text(docMargin.left, nameTop, "Project ID: " + $('#txtProjID').val()); 
 
     doc.setFontSize(14);
     doc.text(docMargin.left, 105, selectedYears[tblNo] + ' Working Day Calendar'); 
@@ -414,6 +420,17 @@ $(document).ready(function(){
     timer = setTimeout(callback, ms);
    };
   })();
+
+  $('#txtProjName').on('keyup', function(){
+    var nameLength = $('#txtProjName').val().length;
+    if (nameLength >= 120) {
+      $('.name-alert').show();
+      $('#txtProjName').val($('#txtProjName').val().substr(0, 120));
+    }
+    else {
+      $('.name-alert').hide();
+    }
+  });
 
   $('#txtProjDur').on('keyup', function(){
     delay(function(){
